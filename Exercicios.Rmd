@@ -2,7 +2,7 @@
 
 ```{r }
 # Defina os parâmetros da simulação:
-n_repeticoes <- 50  # Número de repetições (simulações)
+n_repeticoes <- 200  # Número de repetições (simulações)
 tamanho_populacao <- nrow(notas)  # Tamanho da população total de alunos
 numero_questoes <- ncol(notas)  # Número total de questões disponíveis
 
@@ -69,4 +69,33 @@ cat("Média das estimativas (Plano C):", media_estimativas_C, "\n")
 ```
 
 
+# Abaixo, código da Mari:
+```{r }
+media_tabela_erro <- function(tabela, dp_erro, n_questoes_e_alunos){
+  erro <- rnorm(nrow(tabela)*ncol(tabela), mean = 0, sd = dp_erro)
+  tabela <- tabela + erro
+
+  ## caso 3: ćelulas
+  n_questoes_e_alunos <- 10000
+  linha_3 <- numeric(n_questoes_e_alunos)
+  coluna_3 <- numeric(n_questoes_e_alunos)
+  celulas_selecionadas <- numeric(n_questoes_e_alunos)
+  linha_3 <- sample(1:nrow(tabela), n_questoes_e_alunos, replace = FALSE)
+  coluna_3 <- sample(1:ncol(tabela), n_questoes_e_alunos, replace = TRUE)
+  for (p in 1:n_questoes_e_alunos){
+    selec_linha <- tabela[linha_3[p], ]
+    celulas_selecionadas[p] <- as.double(selec_linha[, coluna_3[p]])
+    }
+  resposta <- data.frame(dp_erro, n_questoes_e_alunos,
+  mean(celulas_selecionadas))
+  colnames(resposta) <- c("Desvio padrao (erro)", "n", "Ḿedia")
+  rownames(resposta) <- "C ́elulas"
+return(resposta)
+}
+
+media_tabela_erro(notas, 1, 10000)
+media_tabela_erro(notas, 10, 10000)
+media_tabela_erro(notas, 100, 10000)
+media_tabela_erro(notas, 1000, 100)
+```
 
