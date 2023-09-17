@@ -1,0 +1,72 @@
+
+
+```{r }
+# Defina os parâmetros da simulação:
+n_repeticoes <- 50  # Número de repetições (simulações)
+tamanho_populacao <- nrow(notas)  # Tamanho da população total de alunos
+numero_questoes <- ncol(notas)  # Número total de questões disponíveis
+
+# Tamanho da amostra para cada plano amostral
+tamanho_amostra_A_alunos <- 100  # Plano A: Amostrar alunos
+tamanho_amostra_B_questoes <- 100  # Plano B: Amostrar questões
+tamanho_amostra_C_celulas <- 100  # Plano C: Amostrar células aluno x questão
+
+# Inicialize vetores para armazenar as estimativas de cada plano amostral
+estimativas_A <- numeric(n_repeticoes)
+estimativas_B <- numeric(n_repeticoes)
+estimativas_C <- numeric(n_repeticoes)
+
+# Realize as simulações de Monte Carlo
+for (i in 1:n_repeticoes) {
+  # Plano A: Amostrar aleatoriamente alunos
+  estimativas_A[i] = 0
+  alunos_selecionados<- sample(1:tamanho_populacao, tamanho_amostra_A_alunos, replace = FALSE)
+  for (j in alunos_selecionados) {
+    estimativas_A[i] <- estimativas_A[i] + notas[j, ] %>% rowMeans()
+  }
+  estimativas_A[i] <- estimativas_A[i] / tamanho_amostra_A_alunos
+
+  # Plano B: Amostrar aleatoriamente questões
+  estimativas_B[i] = 0
+  questoes_selecionadas <- sample(1:numero_questoes, tamanho_amostra_B_questoes, replace = TRUE)
+  for (j in questoes_selecionadas) {
+    estimativas_B[i] <- estimativas_B[i] + notas[ , j] %>% mean()
+  }
+  estimativas_B[i] <- estimativas_B[i] / tamanho_amostra_B_questoes
+  
+  # Plano C: Amostrar aleatoriamente células aluno x questão
+  estimativas_C[s] = 0
+  for (s in 1:n_repeticoes) {
+    celulas_selecionadas <- sample(1:(tamanho_populacao * numero_questoes), tamanho_amostra_C_celulas, replace = FALSE)
+    for (x in celulas_selecionadas) {
+      i <- x %/% numero_questoes
+      if (x %% numero_questoes > 0) {
+        i <- i + 1
+        j <- x %% numero_questoes
+      } else {
+        j <- 1
+      }
+      estimativas_C[s] <- estimativas_C[s] + notas[i,j]
+    }
+    estimativas_C[s] <- estimativas_C[s] / tamanho_amostra_C_celulas
+  }
+}
+
+```
+
+```{r }
+# Calcule as médias das estimativas para cada plano amostral
+media_estimativas_A <- mean(estimativas_A)
+media_estimativas_B <- mean(estimativas_B)
+media_estimativas_C <- mean(estimativas_C)
+```
+
+```{r }
+# Compare as médias estimadas nos diferentes planos
+cat("Média das estimativas (Plano A):", media_estimativas_A, "\n")
+cat("Média das estimativas (Plano B):", media_estimativas_B, "\n")
+cat("Média das estimativas (Plano C):", media_estimativas_C, "\n")
+```
+
+
+
